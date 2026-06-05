@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 
 export const Route = createFileRoute("/business")({
-  head: () => ({ meta: [{ title: "Business Banking — Reflo Bank" }] }),
+  head: () => ({ meta: [{ title: "Business Banking — Novaluna Bank" }] }),
   component: BusinessPage,
 });
 
@@ -19,7 +19,7 @@ function BusinessPage() {
       <section className="mx-auto max-w-7xl px-4 py-16 grid md:grid-cols-3 gap-6">
         {[
           { t: "Business Checking", d: "No-fee accounts with unlimited transactions for qualifying balances." },
-          { t: "Merchant Services", d: "Accept payments in-store, online, and on mobile with Reflo Pay." },
+          { t: "Merchant Services", d: "Accept payments in-store, online, and on mobile with Novaluna Pay." },
           { t: "Commercial Loans", d: "Working capital, equipment financing, and SBA-preferred lending." },
           { t: "Payroll & HR", d: "Integrated payroll processing and benefits administration." },
           { t: "Treasury Management", d: "Cash flow, fraud controls, and international wire services." },

@@ -1,39 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
-import { isValidTransactionId } from "@/lib/transactions";
+import { findTransactionById, type TransactionRecord } from "@/lib/transactions";
 import { BadgeCheck, XCircle, ShieldCheck, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/verify")({
   head: () => ({
     meta: [
-      { title: "Verify Payment — Reflo Bank" },
-      { name: "description", content: "Verify the authenticity of a Reflo Bank payment instantly." },
+      { title: "Verify Payment — Novaluna Bank" },
+      { name: "description", content: "Verify the authenticity of a Novaluna Bank payment instantly." },
     ],
   }),
   component: VerifyPage,
 });
 
-type Result = null | { ok: true; id: string } | { ok: false };
+type Result = null | { ok: true; tx: TransactionRecord } | { ok: false };
 
 function VerifyPage() {
   const [txId, setTxId] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!txId.trim()) return;
     setLoading(true);
     setResult(null);
-    setTimeout(() => {
-      const ok = isValidTransactionId(txId);
-      setResult(ok ? { ok: true, id: txId.trim().toUpperCase() } : { ok: false });
-      setLoading(false);
-    }, 1200);
+    const start = Date.now();
+    const tx = await findTransactionById(txId);
+    const elapsed = Date.now() - start;
+    if (elapsed < 1000) await new Promise((r) => setTimeout(r, 1000 - elapsed));
+    setResult(tx ? { ok: true, tx } : { ok: false });
+    setLoading(false);
   };
 
-  const now = new Date();
+  const fmt = (d: string | Date) =>
+    new Date(d).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+
+  const fmtAmount = (n: number, c: string) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: c || "USD" }).format(n);
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,7 +60,7 @@ function VerifyPage() {
             <input
               value={txId}
               onChange={(e) => setTxId(e.target.value)}
-              placeholder="e.g. RFL481269539082"
+              placeholder="e.g. NVL481269539082"
               className="flex-1 rounded-md border border-input bg-background px-4 py-3 font-mono uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <button
@@ -71,7 +76,7 @@ function VerifyPage() {
         {loading && (
           <div className="mt-6 rounded-xl bg-card border border-border p-8 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="mt-3 text-sm text-muted-foreground">Authenticating with Reflo Bank verification servers…</p>
+            <p className="mt-3 text-sm text-muted-foreground">Authenticating with Novaluna Bank verification servers…</p>
           </div>
         )}
 
@@ -83,21 +88,30 @@ function VerifyPage() {
               </div>
               <h2 className="mt-4 font-display text-3xl font-bold text-success">Payment Successfully Verified</h2>
               <p className="mt-2 text-muted-foreground max-w-md">
-                This transaction is genuine and has been confirmed by Reflo Bank's verification system.
+                This transaction is genuine and has been confirmed by Novaluna Bank's verification system.
               </p>
 
               <div className="mt-6 w-full rounded-lg bg-accent/50 p-5 text-left">
                 <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                  <div><dt className="text-muted-foreground">Reference ID</dt><dd className="font-mono font-semibold">{result.id}</dd></div>
-                  <div><dt className="text-muted-foreground">Verification Status</dt><dd className="font-semibold text-success">Authentic ✓</dd></div>
-                  <div><dt className="text-muted-foreground">Verified On</dt><dd>{now.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</dd></div>
-                  <div><dt className="text-muted-foreground">Bank</dt><dd>Reflo Bank, N.A.</dd></div>
+                  <div><dt className="text-muted-foreground">Reference ID</dt><dd className="font-mono font-semibold">{result.tx.transaction_id}</dd></div>
+                  <div><dt className="text-muted-foreground">Current Status</dt><dd className="font-semibold text-success">{result.tx.status}</dd></div>
+                  <div><dt className="text-muted-foreground">Amount</dt><dd className="font-semibold">{fmtAmount(Number(result.tx.amount), result.tx.currency)}</dd></div>
+                  <div><dt className="text-muted-foreground">Sender</dt><dd>{result.tx.sender_name || "—"}</dd></div>
+                  <div><dt className="text-muted-foreground">Beneficiary</dt><dd>{result.tx.beneficiary_name || "—"}</dd></div>
+                  <div><dt className="text-muted-foreground">Beneficiary A/C</dt><dd className="font-mono">{result.tx.beneficiary_account || "—"}</dd></div>
+                  <div><dt className="text-muted-foreground">Saved On</dt><dd>{fmt(result.tx.saved_at)}</dd></div>
+                  <div><dt className="text-muted-foreground">Last Updated</dt><dd>{fmt(result.tx.updated_at)}</dd></div>
                 </dl>
+                {result.tx.notes && (
+                  <div className="mt-4 rounded-md bg-card border border-border p-3 text-sm">
+                    <span className="font-semibold">Bank Note:</span> {result.tx.notes}
+                  </div>
+                )}
               </div>
 
               <div className="mt-5 flex items-center gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-success" />
-                Verified by Reflo Bank Secure Verification Network
+                Verified by Novaluna Bank Secure Verification Network
               </div>
             </div>
           </div>
@@ -110,7 +124,7 @@ function VerifyPage() {
               <div>
                 <h2 className="font-display text-2xl font-bold text-destructive">Verification Failed</h2>
                 <p className="mt-1 text-muted-foreground">
-                  This transaction reference could not be verified. The ID may be incorrect or the payment may not have been processed through Reflo Bank.
+                  This transaction reference could not be verified. The ID may be incorrect or the payment may not have been processed through Novaluna Bank.
                 </p>
               </div>
             </div>

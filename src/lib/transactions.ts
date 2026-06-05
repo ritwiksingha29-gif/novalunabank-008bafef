@@ -1,17 +1,41 @@
-// Preset valid transaction IDs for Reflo Bank verification system.
-export const VALID_TRANSACTION_IDS: string[] = [
-  'RFL316053050400','RFL481269539082','RFL113815635002','RFL643542762558','RFL729147140675',
-  'RFL836554894607','RFL698236041107','RFL123804588824','RFL389112245204','RFL359656608787',
-  'RFL331600213001','RFL130861233189','RFL440132810951','RFL505986231757','RFL328988872530',
-  'RFL022694999322','RFL126984670697','RFL741738934971','RFL119818963510','RFL965948822225',
-  'RFL241934594955','RFL504107147535','RFL571522755794','RFL655645496892','RFL598114020678',
-  'RFL176189293498','RFL145313705403','RFL650979120721','RFL498219570064','RFL096808084359',
-  'RFL215211023372','RFL513020751491','RFL844835693876','RFL430107210886','RFL222414299529',
-  'RFL330345250203','RFL003255767833','RFL917608867815','RFL588858662013','RFL185666407755',
-  'RFL607202727943','RFL467660127350','RFL026662544181','RFL990489422925','RFL159185872840',
-  'RFL044313380781','RFL979233953420','RFL182922513988','RFL699570747620','RFL914327926353',
-];
+import { supabase } from "@/integrations/supabase/client";
 
-export function isValidTransactionId(id: string): boolean {
-  return VALID_TRANSACTION_IDS.includes(id.trim().toUpperCase());
+export type TransactionRecord = {
+  id: string;
+  transaction_id: string;
+  amount: number;
+  currency: string;
+  sender_name: string;
+  sender_bank: string;
+  beneficiary_name: string;
+  beneficiary_account: string;
+  beneficiary_bank: string;
+  status: string;
+  notes: string;
+  saved_at: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export const STATUS_OPTIONS = [
+  "Processed · Awaiting Settlement",
+  "Successful · Credited to Beneficiary",
+  "In Progress · Under Bank Review",
+  "On Hold · Compliance Check",
+  "Failed · Reversed to Sender",
+] as const;
+
+export async function findTransactionById(rawId: string): Promise<TransactionRecord | null> {
+  const id = rawId.trim().toUpperCase();
+  if (!id) return null;
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .ilike("transaction_id", id)
+    .maybeSingle();
+  if (error) {
+    console.error(error);
+    return null;
+  }
+  return data as TransactionRecord | null;
 }

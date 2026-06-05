@@ -3,7 +3,7 @@ import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { Lock, Shield } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign In — Reflo Bank Internet Banking" }] }),
+  head: () => ({ meta: [{ title: "Sign In — Novaluna Bank Internet Banking" }] }),
   component: LoginPage,
 });
 
@@ -39,7 +39,7 @@ function LoginPage() {
             </div>
             <div className="mt-6 pt-6 border-t border-border text-xs text-muted-foreground flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" />
-              Protected by Reflo Bank 256-bit encryption. Never share your password.
+              Protected by Novaluna Bank 256-bit encryption. Never share your password.
             </div>
           </div>
           <p className="mt-6 text-center text-sm text-muted-foreground">

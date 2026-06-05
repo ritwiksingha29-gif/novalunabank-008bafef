@@ -19,7 +19,7 @@ function HomePage() {
               Banking built on a century of trust.
             </h1>
             <p className="mt-5 text-lg opacity-90 max-w-lg">
-              Manage accounts, send payments, and track every transaction with bank-grade security from Reflo Bank — serving millions of Americans since 1923.
+              Manage accounts, send payments, and track every transaction with bank-grade security from Novaluna Bank — serving millions of Americans since 1923.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/login" className="rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90">
@@ -30,7 +30,7 @@ function HomePage() {
               </Link>
             </div>
             <div className="mt-8 flex items-center gap-6 text-sm opacity-90">
-              <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> FDIC Insured</span>
+              <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> EYPS Insured</span>
               <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> 256-bit Encryption</span>
             </div>
           </div>
@@ -84,7 +84,7 @@ function HomePage() {
             <Search className="h-10 w-10 text-primary" />
             <h3 className="mt-4 font-display text-2xl font-bold">Track a Transaction</h3>
             <p className="mt-2 text-muted-foreground">
-              Already sent a payment? Enter your Reflo transaction ID to see real-time status and credit timeline.
+              Already sent a payment? Enter your Novaluna transaction ID to see real-time status and credit timeline.
             </p>
             <span className="mt-4 inline-flex items-center gap-1.5 text-primary font-semibold group-hover:gap-2.5 transition-all">
               Track now →
