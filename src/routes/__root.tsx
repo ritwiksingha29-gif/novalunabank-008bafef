@@ -77,9 +77,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Reflo Bank — Personal & Business Banking | USA" },
-      { name: "description", content: "Reflo Bank — secure online banking, payments, and account services for individuals and businesses across the United States." },
-      { property: "og:title", content: "Reflo Bank — Personal & Business Banking" },
+      { title: "Novaluna Bank — Personal & Business Banking | USA" },
+      { name: "description", content: "Novaluna Bank — secure online banking, payments, and account services for individuals and businesses across the United States." },
+      { property: "og:title", content: "Novaluna Bank — Personal & Business Banking" },
       { property: "og:description", content: "Secure online banking, payments, and account services across the United States." },
       { property: "og:type", content: "website" },
     ],

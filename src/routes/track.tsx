@@ -1,40 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
-import { isValidTransactionId } from "@/lib/transactions";
+import { findTransactionById, type TransactionRecord } from "@/lib/transactions";
 import { CheckCircle2, XCircle, Search, Clock, ArrowRight, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/track")({
   head: () => ({
     meta: [
-      { title: "Track Transaction — Reflo Bank" },
-      { name: "description", content: "Track the status of your Reflo Bank transaction in real time." },
+      { title: "Track Transaction — Novaluna Bank" },
+      { name: "description", content: "Track the status of your Novaluna Bank transaction in real time." },
     ],
   }),
   component: TrackPage,
 });
 
-type Result = null | { ok: true; id: string } | { ok: false };
+type Result = null | { ok: true; tx: TransactionRecord } | { ok: false };
 
 function TrackPage() {
   const [txId, setTxId] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!txId.trim()) return;
     setLoading(true);
     setResult(null);
-    setTimeout(() => {
-      const ok = isValidTransactionId(txId);
-      setResult(ok ? { ok: true, id: txId.trim().toUpperCase() } : { ok: false });
-      setLoading(false);
-    }, 1400);
+    const start = Date.now();
+    const tx = await findTransactionById(txId);
+    const elapsed = Date.now() - start;
+    if (elapsed < 1200) await new Promise((r) => setTimeout(r, 1200 - elapsed));
+    setResult(tx ? { ok: true, tx } : { ok: false });
+    setLoading(false);
   };
 
-  const now = new Date();
-  const fmt = (d: Date) => d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+  const fmt = (d: string | Date) =>
+    new Date(d).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+
+  const fmtAmount = (n: number, c: string) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: c || "USD" }).format(n);
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,7 +47,7 @@ function TrackPage() {
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto max-w-5xl px-4 py-12">
           <h1 className="font-display text-4xl font-bold">Track Your Transaction</h1>
-          <p className="mt-2 opacity-90">Enter your 15-character Reflo transaction reference to view live status.</p>
+          <p className="mt-2 opacity-90">Enter your Novaluna transaction reference to view live status.</p>
         </div>
       </section>
 
@@ -54,7 +58,7 @@ function TrackPage() {
             <input
               value={txId}
               onChange={(e) => setTxId(e.target.value)}
-              placeholder="e.g. RFL316053050400"
+              placeholder="e.g. NVL316053050400"
               className="flex-1 rounded-md border border-input bg-background px-4 py-3 font-mono uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <button
@@ -70,7 +74,7 @@ function TrackPage() {
         {loading && (
           <div className="mt-6 rounded-xl bg-card border border-border p-8 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="mt-3 text-sm text-muted-foreground">Securely contacting Reflo Bank settlement network…</p>
+            <p className="mt-3 text-sm text-muted-foreground">Securely contacting Novaluna Bank settlement network…</p>
           </div>
         )}
 
@@ -82,7 +86,7 @@ function TrackPage() {
                 <div>
                   <h2 className="font-display text-2xl font-bold text-success">Payment Successfully Processed</h2>
                   <p className="mt-1 text-muted-foreground">
-                    Your transaction has been processed by Reflo Bank and will be credited to the beneficiary account within <strong className="text-foreground">6 working hours</strong>.
+                    Your transaction has been processed by Novaluna Bank and will be credited to the beneficiary account within <strong className="text-foreground">6 working hours</strong>.
                   </p>
                 </div>
               </div>
@@ -91,22 +95,31 @@ function TrackPage() {
             <div className="rounded-xl bg-card border border-border p-6">
               <h3 className="font-semibold text-lg">Transaction Details</h3>
               <dl className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                <div><dt className="text-muted-foreground">Reference ID</dt><dd className="font-mono font-semibold">{result.id}</dd></div>
-                <div><dt className="text-muted-foreground">Status</dt><dd className="font-semibold text-success">Processed · Awaiting Settlement</dd></div>
-                <div><dt className="text-muted-foreground">Initiated</dt><dd>{fmt(new Date(now.getTime() - 1000 * 60 * 23))}</dd></div>
-                <div><dt className="text-muted-foreground">Expected Credit</dt><dd>Within 6 working hours</dd></div>
-                <div><dt className="text-muted-foreground">Channel</dt><dd>IMPS / RTGS — Reflo Settlement Network</dd></div>
-                <div><dt className="text-muted-foreground">Sender Bank</dt><dd>Verified</dd></div>
+                <div><dt className="text-muted-foreground">Reference ID</dt><dd className="font-mono font-semibold">{result.tx.transaction_id}</dd></div>
+                <div><dt className="text-muted-foreground">Status</dt><dd className="font-semibold text-success">{result.tx.status}</dd></div>
+                <div><dt className="text-muted-foreground">Amount</dt><dd className="font-semibold">{fmtAmount(Number(result.tx.amount), result.tx.currency)}</dd></div>
+                <div><dt className="text-muted-foreground">Initiated / Saved</dt><dd>{fmt(result.tx.saved_at)}</dd></div>
+                <div><dt className="text-muted-foreground">Sender</dt><dd>{result.tx.sender_name || "—"}{result.tx.sender_bank ? ` · ${result.tx.sender_bank}` : ""}</dd></div>
+                <div><dt className="text-muted-foreground">Beneficiary</dt><dd>{result.tx.beneficiary_name || "—"}</dd></div>
+                <div><dt className="text-muted-foreground">Beneficiary A/C</dt><dd className="font-mono">{result.tx.beneficiary_account || "—"}</dd></div>
+                <div><dt className="text-muted-foreground">Beneficiary Bank</dt><dd>{result.tx.beneficiary_bank}</dd></div>
+                <div><dt className="text-muted-foreground">Channel</dt><dd>IMPS / RTGS — Novaluna Settlement Network</dd></div>
+                <div><dt className="text-muted-foreground">Last Updated</dt><dd>{fmt(result.tx.updated_at)}</dd></div>
               </dl>
+              {result.tx.notes && (
+                <div className="mt-4 rounded-md bg-accent/50 p-3 text-sm">
+                  <span className="font-semibold">Bank Note:</span> {result.tx.notes}
+                </div>
+              )}
             </div>
 
             <div className="rounded-xl bg-card border border-border p-6">
               <h3 className="font-semibold text-lg mb-4">Settlement Timeline</h3>
               <ol className="space-y-4">
                 {[
-                  { t: "Payment Initiated", time: fmt(new Date(now.getTime() - 1000 * 60 * 23)), done: true, icon: ArrowRight },
-                  { t: "Verified by Reflo Bank", time: fmt(new Date(now.getTime() - 1000 * 60 * 18)), done: true, icon: CheckCircle2 },
-                  { t: "Processed at Clearing House", time: fmt(now), done: true, icon: Building2 },
+                  { t: "Payment Initiated", time: fmt(result.tx.saved_at), done: true, icon: ArrowRight },
+                  { t: "Verified by Novaluna Bank", time: fmt(result.tx.saved_at), done: true, icon: CheckCircle2 },
+                  { t: "Processed at Clearing House", time: fmt(result.tx.updated_at), done: true, icon: Building2 },
                   { t: "Credit to Beneficiary Account", time: "Within 6 working hours", done: false, icon: Clock },
                 ].map((s, i) => (
                   <li key={i} className="flex items-start gap-3">
@@ -131,7 +144,7 @@ function TrackPage() {
               <div>
                 <h2 className="font-display text-2xl font-bold text-destructive">Transaction Not Found</h2>
                 <p className="mt-1 text-muted-foreground">
-                  We couldn't locate a transaction with this reference ID in our system. Please double-check the ID and try again, or contact Reflo Bank support at 1-800-REFLO-US.
+                  We couldn't locate a transaction with this reference ID in our system. Please double-check the ID and try again, or contact Novaluna Bank support at +1 1800-546-4002.
                 </p>
               </div>
             </div>
