@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      transactions: {
+        Row: {
+          amount: number
+          beneficiary_account: string
+          beneficiary_bank: string
+          beneficiary_name: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          notes: string
+          saved_at: string
+          sender_bank: string
+          sender_name: string
+          status: string
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          beneficiary_account?: string
+          beneficiary_bank?: string
+          beneficiary_name?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string
+          saved_at?: string
+          sender_bank?: string
+          sender_name?: string
+          status?: string
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          beneficiary_account?: string
+          beneficiary_bank?: string
+          beneficiary_name?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string
+          saved_at?: string
+          sender_bank?: string
+          sender_name?: string
+          status?: string
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
