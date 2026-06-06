@@ -138,13 +138,24 @@ type FormState = {
   beneficiary_bank: string;
   status: string;
   notes: string;
-  saved_at: string; // datetime-local
+  saved_at: string;
+  initiated_at: string;
+  verified_at: string;
+  processed_at: string;
+  credited_at: string;
 };
+
+const toLocal = (d: Date) =>
+  new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+const isoToLocal = (s: string | null) => (s ? toLocal(new Date(s)) : "");
+
+const localToIso = (s: string) => (s ? new Date(s).toISOString() : null);
 
 const emptyForm = (): FormState => {
   const d = new Date();
   d.setSeconds(0, 0);
-  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const local = toLocal(d);
   return {
     transaction_id: "",
     amount: "",
@@ -157,6 +168,10 @@ const emptyForm = (): FormState => {
     status: STATUS_OPTIONS[0],
     notes: "",
     saved_at: local,
+    initiated_at: local,
+    verified_at: "",
+    processed_at: "",
+    credited_at: "",
   };
 };
 
