@@ -458,6 +458,45 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                   ))}
                 </select>
               </Field>
+              <div className="sm:col-span-2 mt-2 rounded-lg border border-border bg-accent/30 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">
+                  Settlement Timeline (leave blank to hide a step)
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Payment Initiated — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.initiated_at}
+                      onChange={(e) => setForm({ ...form, initiated_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                  <Field label="Verified by Novaluna Bank — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.verified_at}
+                      onChange={(e) => setForm({ ...form, verified_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                  <Field label="Processed at Clearing House — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.processed_at}
+                      onChange={(e) => setForm({ ...form, processed_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                  <Field label="Credited to Beneficiary — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.credited_at}
+                      onChange={(e) => setForm({ ...form, credited_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                </div>
+              </div>
               <div className="sm:col-span-2">
                 <Field label="Notes (optional)">
                   <textarea
