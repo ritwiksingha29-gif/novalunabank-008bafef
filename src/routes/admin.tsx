@@ -207,9 +207,6 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
   };
 
   const startEdit = (tx: TransactionRecord) => {
-    const local = new Date(new Date(tx.saved_at).getTime() - new Date(tx.saved_at).getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
     setEditing(tx);
     setForm({
       transaction_id: tx.transaction_id,
