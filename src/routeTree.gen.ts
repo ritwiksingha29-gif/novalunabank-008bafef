@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as TrackRouteImport } from './routes/track'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as OffersRouteImport } from './routes/offers'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as CardsRouteImport } from './routes/cards'
 import { Route as BusinessRouteImport } from './routes/business'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -32,9 +34,19 @@ const SupportRoute = SupportRouteImport.update({
   path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OffersRoute = OffersRouteImport.update({
+  id: '/offers',
+  path: '/offers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CardsRoute = CardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BusinessRoute = BusinessRouteImport.update({
@@ -57,7 +69,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
+  '/cards': typeof CardsRoute
   '/login': typeof LoginRoute
+  '/offers': typeof OffersRoute
   '/support': typeof SupportRoute
   '/track': typeof TrackRoute
   '/verify': typeof VerifyRoute
@@ -66,7 +80,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
+  '/cards': typeof CardsRoute
   '/login': typeof LoginRoute
+  '/offers': typeof OffersRoute
   '/support': typeof SupportRoute
   '/track': typeof TrackRoute
   '/verify': typeof VerifyRoute
@@ -76,7 +92,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/business': typeof BusinessRoute
+  '/cards': typeof CardsRoute
   '/login': typeof LoginRoute
+  '/offers': typeof OffersRoute
   '/support': typeof SupportRoute
   '/track': typeof TrackRoute
   '/verify': typeof VerifyRoute
@@ -87,7 +105,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/business'
+    | '/cards'
     | '/login'
+    | '/offers'
     | '/support'
     | '/track'
     | '/verify'
@@ -96,7 +116,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/business'
+    | '/cards'
     | '/login'
+    | '/offers'
     | '/support'
     | '/track'
     | '/verify'
@@ -105,7 +127,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/business'
+    | '/cards'
     | '/login'
+    | '/offers'
     | '/support'
     | '/track'
     | '/verify'
@@ -115,7 +139,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   BusinessRoute: typeof BusinessRoute
+  CardsRoute: typeof CardsRoute
   LoginRoute: typeof LoginRoute
+  OffersRoute: typeof OffersRoute
   SupportRoute: typeof SupportRoute
   TrackRoute: typeof TrackRoute
   VerifyRoute: typeof VerifyRoute
@@ -144,11 +170,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/offers': {
+      id: '/offers'
+      path: '/offers'
+      fullPath: '/offers'
+      preLoaderRoute: typeof OffersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cards': {
+      id: '/cards'
+      path: '/cards'
+      fullPath: '/cards'
+      preLoaderRoute: typeof CardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/business': {
@@ -179,7 +219,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   BusinessRoute: BusinessRoute,
+  CardsRoute: CardsRoute,
   LoginRoute: LoginRoute,
+  OffersRoute: OffersRoute,
   SupportRoute: SupportRoute,
   TrackRoute: TrackRoute,
   VerifyRoute: VerifyRoute,
