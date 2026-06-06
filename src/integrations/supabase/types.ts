@@ -22,15 +22,19 @@ export type Database = {
           beneficiary_name: string
           created_at: string
           created_by: string | null
+          credited_at: string | null
           currency: string
           id: string
+          initiated_at: string | null
           notes: string
+          processed_at: string | null
           saved_at: string
           sender_bank: string
           sender_name: string
           status: string
           transaction_id: string
           updated_at: string
+          verified_at: string | null
         }
         Insert: {
           amount?: number
@@ -39,15 +43,19 @@ export type Database = {
           beneficiary_name?: string
           created_at?: string
           created_by?: string | null
+          credited_at?: string | null
           currency?: string
           id?: string
+          initiated_at?: string | null
           notes?: string
+          processed_at?: string | null
           saved_at?: string
           sender_bank?: string
           sender_name?: string
           status?: string
           transaction_id: string
           updated_at?: string
+          verified_at?: string | null
         }
         Update: {
           amount?: number
@@ -56,15 +64,19 @@ export type Database = {
           beneficiary_name?: string
           created_at?: string
           created_by?: string | null
+          credited_at?: string | null
           currency?: string
           id?: string
+          initiated_at?: string | null
           notes?: string
+          processed_at?: string | null
           saved_at?: string
           sender_bank?: string
           sender_name?: string
           status?: string
           transaction_id?: string
           updated_at?: string
+          verified_at?: string | null
         }
         Relationships: []
       }
