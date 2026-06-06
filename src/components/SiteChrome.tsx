@@ -5,8 +5,10 @@ import { Logo } from "@/components/Logo";
 const navItems = [
   { to: "/", label: "Personal" },
   { to: "/business", label: "Business" },
-  { to: "/track", label: "Track Transaction" },
-  { to: "/verify", label: "Verify Payment" },
+  { to: "/cards", label: "Cards" },
+  { to: "/offers", label: "Rates & Offers" },
+  { to: "/track", label: "Track" },
+  { to: "/verify", label: "Verify" },
   { to: "/support", label: "Support" },
 ];
 
@@ -75,7 +77,10 @@ export function SiteFooter() {
         <div>
           <h4 className="text-sm font-semibold mb-3">Banking</h4>
           <ul className="space-y-2 text-sm opacity-80">
-            <li>Checking Accounts</li><li>Savings & CDs</li><li>Credit Cards</li><li>Mortgages</li>
+            <li><Link to="/offers">Checking & Savings</Link></li>
+            <li><Link to="/offers">CDs & Rates</Link></li>
+            <li><Link to="/cards">Credit Cards</Link></li>
+            <li><Link to="/offers">Mortgages</Link></li>
           </ul>
         </div>
         <div>
