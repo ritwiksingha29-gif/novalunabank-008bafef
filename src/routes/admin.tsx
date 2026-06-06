@@ -253,18 +253,6 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
       processed_at: localToIso(form.processed_at),
       credited_at: localToIso(form.credited_at),
     };
-      transaction_id: form.transaction_id.trim().toUpperCase(),
-      amount: Number(form.amount) || 0,
-      currency: form.currency.trim().toUpperCase() || "USD",
-      sender_name: form.sender_name.trim(),
-      sender_bank: form.sender_bank.trim(),
-      beneficiary_name: form.beneficiary_name.trim(),
-      beneficiary_account: form.beneficiary_account.trim(),
-      beneficiary_bank: form.beneficiary_bank.trim() || "Novaluna Bank",
-      status: form.status,
-      notes: form.notes.trim(),
-      saved_at: new Date(form.saved_at).toISOString(),
-    };
 
     const { error } = editing
       ? await supabase.from("transactions").update(payload).eq("id", editing.id)
