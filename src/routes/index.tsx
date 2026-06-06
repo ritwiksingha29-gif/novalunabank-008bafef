@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { Shield, Lock, TrendingUp, CreditCard, Smartphone, Search, BadgeCheck } from "lucide-react";
 
@@ -35,27 +36,26 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="bg-card text-card-foreground rounded-xl shadow-2xl p-8">
-            <h3 className="font-display text-2xl font-bold text-primary">Internet Banking Login</h3>
-            <p className="text-sm text-muted-foreground mt-1">Sign in to your secure account</p>
-            <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label className="text-sm font-medium">User ID</label>
-                <input type="text" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Enter User ID" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Password</label>
-                <input type="password" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Enter Password" />
-              </div>
-              <button className="w-full rounded-md bg-primary text-primary-foreground py-2.5 font-semibold hover:bg-primary/90">
-                Secure Sign In
-              </button>
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <a href="#">Forgot User ID?</a>
-                <a href="#">Forgot Password?</a>
-              </div>
-            </form>
-          </div>
+          <LoginCard />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <h2 className="font-display text-3xl font-bold text-center text-primary">Everything You Need, In One Place</h2>
+        <p className="text-center text-muted-foreground mt-2">Trusted banking services for every step of your financial journey</p>
+        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            { icon: CreditCard, title: "Cards & Payments", desc: "Debit, credit, and prepaid solutions", to: "/cards" as const },
+            { icon: TrendingUp, title: "Savings & Invest", desc: "High-yield savings up to 4.85% APY", to: "/offers" as const },
+            { icon: Smartphone, title: "Mobile Banking", desc: "Deposit checks, pay bills on the go", to: "/support" as const },
+            { icon: Shield, title: "Fraud Protection", desc: "24/7 monitoring & zero liability", to: "/verify" as const },
+          ].map((f) => (
+            <Link key={f.title} to={f.to} className="rounded-lg border border-border bg-card p-6 hover:shadow-lg hover:border-primary transition-all">
+              <f.icon className="h-8 w-8 text-primary" />
+              <h3 className="mt-4 font-semibold text-lg">{f.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
+            </Link>
+          ))}
         </div>
       </section>
 
