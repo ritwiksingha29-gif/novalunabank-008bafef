@@ -15,6 +15,10 @@ export type TransactionRecord = {
   saved_at: string;
   created_at: string;
   updated_at: string;
+  initiated_at: string | null;
+  verified_at: string | null;
+  processed_at: string | null;
+  credited_at: string | null;
 };
 
 export const STATUS_OPTIONS = [

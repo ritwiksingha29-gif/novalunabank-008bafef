@@ -138,13 +138,24 @@ type FormState = {
   beneficiary_bank: string;
   status: string;
   notes: string;
-  saved_at: string; // datetime-local
+  saved_at: string;
+  initiated_at: string;
+  verified_at: string;
+  processed_at: string;
+  credited_at: string;
 };
+
+const toLocal = (d: Date) =>
+  new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+const isoToLocal = (s: string | null) => (s ? toLocal(new Date(s)) : "");
+
+const localToIso = (s: string) => (s ? new Date(s).toISOString() : null);
 
 const emptyForm = (): FormState => {
   const d = new Date();
   d.setSeconds(0, 0);
-  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const local = toLocal(d);
   return {
     transaction_id: "",
     amount: "",
@@ -157,6 +168,10 @@ const emptyForm = (): FormState => {
     status: STATUS_OPTIONS[0],
     notes: "",
     saved_at: local,
+    initiated_at: local,
+    verified_at: "",
+    processed_at: "",
+    credited_at: "",
   };
 };
 
@@ -192,9 +207,6 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
   };
 
   const startEdit = (tx: TransactionRecord) => {
-    const local = new Date(new Date(tx.saved_at).getTime() - new Date(tx.saved_at).getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
     setEditing(tx);
     setForm({
       transaction_id: tx.transaction_id,
@@ -207,7 +219,11 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
       beneficiary_bank: tx.beneficiary_bank,
       status: tx.status,
       notes: tx.notes,
-      saved_at: local,
+      saved_at: isoToLocal(tx.saved_at),
+      initiated_at: isoToLocal(tx.initiated_at) || isoToLocal(tx.saved_at),
+      verified_at: isoToLocal(tx.verified_at),
+      processed_at: isoToLocal(tx.processed_at),
+      credited_at: isoToLocal(tx.credited_at),
     });
     setShowForm(true);
     setErr(null);
@@ -229,6 +245,10 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
       status: form.status,
       notes: form.notes.trim(),
       saved_at: new Date(form.saved_at).toISOString(),
+      initiated_at: localToIso(form.initiated_at),
+      verified_at: localToIso(form.verified_at),
+      processed_at: localToIso(form.processed_at),
+      credited_at: localToIso(form.credited_at),
     };
 
     const { error } = editing
@@ -438,6 +458,45 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                   ))}
                 </select>
               </Field>
+              <div className="sm:col-span-2 mt-2 rounded-lg border border-border bg-accent/30 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">
+                  Settlement Timeline (leave blank to hide a step)
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Payment Initiated — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.initiated_at}
+                      onChange={(e) => setForm({ ...form, initiated_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                  <Field label="Verified by Novaluna Bank — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.verified_at}
+                      onChange={(e) => setForm({ ...form, verified_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                  <Field label="Processed at Clearing House — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.processed_at}
+                      onChange={(e) => setForm({ ...form, processed_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                  <Field label="Credited to Beneficiary — Time">
+                    <input
+                      type="datetime-local"
+                      value={form.credited_at}
+                      onChange={(e) => setForm({ ...form, credited_at: e.target.value })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2"
+                    />
+                  </Field>
+                </div>
+              </div>
               <div className="sm:col-span-2">
                 <Field label="Notes (optional)">
                   <textarea
