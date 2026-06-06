@@ -59,24 +59,6 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16">
-        <h2 className="font-display text-3xl font-bold text-center text-primary">Everything You Need, In One Place</h2>
-        <p className="text-center text-muted-foreground mt-2">Trusted banking services for every step of your financial journey</p>
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[
-            { icon: CreditCard, title: "Cards & Payments", desc: "Debit, credit, and prepaid solutions" },
-            { icon: TrendingUp, title: "Savings & Invest", desc: "High-yield savings up to 4.85% APY" },
-            { icon: Smartphone, title: "Mobile Banking", desc: "Deposit checks, pay bills on the go" },
-            { icon: Shield, title: "Fraud Protection", desc: "24/7 monitoring & zero liability" },
-          ].map((f) => (
-            <div key={f.title} className="rounded-lg border border-border bg-card p-6 hover:shadow-lg transition-shadow">
-              <f.icon className="h-8 w-8 text-primary" />
-              <h3 className="mt-4 font-semibold text-lg">{f.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       <section className="bg-accent/40 border-y border-border">
         <div className="mx-auto max-w-7xl px-4 py-16 grid md:grid-cols-2 gap-6">
@@ -119,6 +101,54 @@ function HomePage() {
       </section>
 
       <SiteFooter />
+    </div>
+  );
+}
+
+function LoginCard() {
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
+  const [msg, setMsg] = useState("");
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId || !password) {
+      setState("error");
+      setMsg("Please enter both your User ID and Password.");
+      return;
+    }
+    setState("loading");
+    setMsg("");
+    await new Promise((r) => setTimeout(r, 1400));
+    setState("error");
+    setMsg("We could not verify your credentials. For your security, please call +1 1800-546-4002 if this continues.");
+  };
+
+  return (
+    <div className="bg-card text-card-foreground rounded-xl shadow-2xl p-8">
+      <h3 className="font-display text-2xl font-bold text-primary">Internet Banking Login</h3>
+      <p className="text-sm text-muted-foreground mt-1">Sign in to your secure account</p>
+      <form className="mt-6 space-y-4" onSubmit={submit}>
+        <div>
+          <label className="text-sm font-medium">User ID</label>
+          <input value={userId} onChange={(e) => setUserId(e.target.value)} type="text" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Enter User ID" />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Password</label>
+          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Enter Password" />
+        </div>
+        {state === "error" && msg && (
+          <p className="text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-md px-3 py-2">{msg}</p>
+        )}
+        <button disabled={state === "loading"} className="w-full rounded-md bg-primary text-primary-foreground py-2.5 font-semibold hover:bg-primary/90 disabled:opacity-70">
+          {state === "loading" ? "Authenticating…" : "Secure Sign In"}
+        </button>
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <Link to="/support" className="hover:text-primary">Forgot User ID?</Link>
+          <Link to="/support" className="hover:text-primary">Forgot Password?</Link>
+        </div>
+      </form>
     </div>
   );
 }
