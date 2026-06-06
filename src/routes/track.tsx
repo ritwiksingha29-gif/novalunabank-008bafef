@@ -117,21 +117,26 @@ function TrackPage() {
               <h3 className="font-semibold text-lg mb-4">Settlement Timeline</h3>
               <ol className="space-y-4">
                 {[
-                  { t: "Payment Initiated", time: fmt(result.tx.saved_at), done: true, icon: ArrowRight },
-                  { t: "Verified by Novaluna Bank", time: fmt(result.tx.saved_at), done: true, icon: CheckCircle2 },
-                  { t: "Processed at Clearing House", time: fmt(result.tx.updated_at), done: true, icon: Building2 },
-                  { t: "Credit to Beneficiary Account", time: "Within 6 working hours", done: false, icon: Clock },
-                ].map((s, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div className={`mt-0.5 flex h-8 w-8 items-center justify-center rounded-full ${s.done ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}>
-                      <s.icon className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="font-medium">{s.t}</div>
-                      <div className="text-xs text-muted-foreground">{s.time}</div>
-                    </div>
-                  </li>
-                ))}
+                  { t: "Payment Initiated", time: result.tx.initiated_at, icon: ArrowRight },
+                  { t: "Verified by Novaluna Bank", time: result.tx.verified_at, icon: CheckCircle2 },
+                  { t: "Processed at Clearing House", time: result.tx.processed_at, icon: Building2 },
+                  { t: "Credit to Beneficiary Account", time: result.tx.credited_at, icon: Clock, pendingLabel: "Within 6 working hours" },
+                ].map((s, i) => {
+                  const done = !!s.time;
+                  return (
+                    <li key={i} className="flex items-start gap-3">
+                      <div className={`mt-0.5 flex h-8 w-8 items-center justify-center rounded-full ${done ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}>
+                        <s.icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className={`font-medium ${done ? "" : "text-muted-foreground"}`}>{s.t}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {done ? fmt(s.time as string) : (s.pendingLabel ?? "Pending")}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
               </ol>
             </div>
           </div>
