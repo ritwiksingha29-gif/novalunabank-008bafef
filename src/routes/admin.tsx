@@ -222,7 +222,11 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
       beneficiary_bank: tx.beneficiary_bank,
       status: tx.status,
       notes: tx.notes,
-      saved_at: local,
+      saved_at: isoToLocal(tx.saved_at),
+      initiated_at: isoToLocal(tx.initiated_at) || isoToLocal(tx.saved_at),
+      verified_at: isoToLocal(tx.verified_at),
+      processed_at: isoToLocal(tx.processed_at),
+      credited_at: isoToLocal(tx.credited_at),
     });
     setShowForm(true);
     setErr(null);
@@ -233,6 +237,22 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
     setSaving(true);
     setErr(null);
     const payload = {
+      transaction_id: form.transaction_id.trim().toUpperCase(),
+      amount: Number(form.amount) || 0,
+      currency: form.currency.trim().toUpperCase() || "USD",
+      sender_name: form.sender_name.trim(),
+      sender_bank: form.sender_bank.trim(),
+      beneficiary_name: form.beneficiary_name.trim(),
+      beneficiary_account: form.beneficiary_account.trim(),
+      beneficiary_bank: form.beneficiary_bank.trim() || "Novaluna Bank",
+      status: form.status,
+      notes: form.notes.trim(),
+      saved_at: new Date(form.saved_at).toISOString(),
+      initiated_at: localToIso(form.initiated_at),
+      verified_at: localToIso(form.verified_at),
+      processed_at: localToIso(form.processed_at),
+      credited_at: localToIso(form.credited_at),
+    };
       transaction_id: form.transaction_id.trim().toUpperCase(),
       amount: Number(form.amount) || 0,
       currency: form.currency.trim().toUpperCase() || "USD",
