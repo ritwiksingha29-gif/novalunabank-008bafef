@@ -2,7 +2,59 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { findTransactionById, type TransactionRecord } from "@/lib/transactions";
-import { CheckCircle2, XCircle, Search, Clock, ArrowRight, Building2 } from "lucide-react";
+import { CheckCircle2, XCircle, Search, Clock, ArrowRight, Building2, AlertTriangle, Loader2, PauseCircle } from "lucide-react";
+
+type StatusTone = {
+  tone: "success" | "info" | "warning" | "destructive";
+  title: string;
+  message: string;
+  Icon: typeof CheckCircle2;
+};
+
+const statusMeta = (status: string): StatusTone => {
+  const s = status.toLowerCase();
+  if (s.startsWith("failed"))
+    return {
+      tone: "destructive",
+      title: "Payment Failed",
+      message: "This transaction could not be completed and has been reversed to the sender's account. Please contact Novaluna Bank support if funds are not visible within 2 working hours.",
+      Icon: XCircle,
+    };
+  if (s.startsWith("on hold"))
+    return {
+      tone: "warning",
+      title: "Payment On Hold — Compliance Review",
+      message: "Your transaction is temporarily held by our compliance team for routine verification. No action is required from the beneficiary at this time.",
+      Icon: PauseCircle,
+    };
+  if (s.startsWith("in progress"))
+    return {
+      tone: "info",
+      title: "Payment In Progress",
+      message: "Your transaction is currently being reviewed by Novaluna Bank. Settlement to the beneficiary account is expected within 6 working hours of approval.",
+      Icon: Loader2,
+    };
+  if (s.startsWith("successful"))
+    return {
+      tone: "success",
+      title: "Payment Credited Successfully",
+      message: "Your transaction has been completed and credited to the beneficiary account by Novaluna Bank.",
+      Icon: CheckCircle2,
+    };
+  return {
+    tone: "success",
+    title: "Payment Successfully Processed",
+    message: "Your transaction has been processed by Novaluna Bank and will be credited to the beneficiary account within 6 working hours.",
+    Icon: CheckCircle2,
+  };
+};
+
+const toneClasses = {
+  success: { border: "border-success", text: "text-success", bgStep: "bg-success text-success-foreground" },
+  info: { border: "border-primary", text: "text-primary", bgStep: "bg-primary text-primary-foreground" },
+  warning: { border: "border-amber-500", text: "text-amber-600", bgStep: "bg-amber-500 text-white" },
+  destructive: { border: "border-destructive", text: "text-destructive", bgStep: "bg-destructive text-destructive-foreground" },
+} as const;
 
 export const Route = createFileRoute("/track")({
   head: () => ({
