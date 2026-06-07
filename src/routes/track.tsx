@@ -2,7 +2,59 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { findTransactionById, type TransactionRecord } from "@/lib/transactions";
-import { CheckCircle2, XCircle, Search, Clock, ArrowRight, Building2 } from "lucide-react";
+import { CheckCircle2, XCircle, Search, Clock, ArrowRight, Building2, AlertTriangle, Loader2, PauseCircle } from "lucide-react";
+
+type StatusTone = {
+  tone: "success" | "info" | "warning" | "destructive";
+  title: string;
+  message: string;
+  Icon: typeof CheckCircle2;
+};
+
+const statusMeta = (status: string): StatusTone => {
+  const s = status.toLowerCase();
+  if (s.startsWith("failed"))
+    return {
+      tone: "destructive",
+      title: "Payment Failed",
+      message: "This transaction could not be completed and has been reversed to the sender's account. Please contact Novaluna Bank support if funds are not visible within 2 working hours.",
+      Icon: XCircle,
+    };
+  if (s.startsWith("on hold"))
+    return {
+      tone: "warning",
+      title: "Payment On Hold — Compliance Review",
+      message: "Your transaction is temporarily held by our compliance team for routine verification. No action is required from the beneficiary at this time.",
+      Icon: PauseCircle,
+    };
+  if (s.startsWith("in progress"))
+    return {
+      tone: "info",
+      title: "Payment In Progress",
+      message: "Your transaction is currently being reviewed by Novaluna Bank. Settlement to the beneficiary account is expected within 6 working hours of approval.",
+      Icon: Loader2,
+    };
+  if (s.startsWith("successful"))
+    return {
+      tone: "success",
+      title: "Payment Credited Successfully",
+      message: "Your transaction has been completed and credited to the beneficiary account by Novaluna Bank.",
+      Icon: CheckCircle2,
+    };
+  return {
+    tone: "success",
+    title: "Payment Successfully Processed",
+    message: "Your transaction has been processed by Novaluna Bank and will be credited to the beneficiary account within 6 working hours.",
+    Icon: CheckCircle2,
+  };
+};
+
+const toneClasses = {
+  success: { border: "border-success", text: "text-success", bgStep: "bg-success text-success-foreground" },
+  info: { border: "border-primary", text: "text-primary", bgStep: "bg-primary text-primary-foreground" },
+  warning: { border: "border-amber-500", text: "text-amber-600", bgStep: "bg-amber-500 text-white" },
+  destructive: { border: "border-destructive", text: "text-destructive", bgStep: "bg-destructive text-destructive-foreground" },
+} as const;
 
 export const Route = createFileRoute("/track")({
   head: () => ({
@@ -78,16 +130,18 @@ function TrackPage() {
           </div>
         )}
 
-        {result?.ok === true && (
+        {result?.ok === true && (() => {
+          const meta = statusMeta(result.tx.status);
+          const tc = toneClasses[meta.tone];
+          const StatusIcon = meta.Icon;
+          return (
           <div className="mt-6 space-y-4">
-            <div className="rounded-xl bg-card border-2 border-success p-6">
+            <div className={`rounded-xl bg-card border-2 ${tc.border} p-6`}>
               <div className="flex items-start gap-4">
-                <CheckCircle2 className="h-12 w-12 text-success shrink-0" />
+                <StatusIcon className={`h-12 w-12 ${tc.text} shrink-0`} />
                 <div>
-                  <h2 className="font-display text-2xl font-bold text-success">Payment Successfully Processed</h2>
-                  <p className="mt-1 text-muted-foreground">
-                    Your transaction has been processed by Novaluna Bank and will be credited to the beneficiary account within <strong className="text-foreground">6 working hours</strong>.
-                  </p>
+                  <h2 className={`font-display text-2xl font-bold ${tc.text}`}>{meta.title}</h2>
+                  <p className="mt-1 text-muted-foreground">{meta.message}</p>
                 </div>
               </div>
             </div>
@@ -96,7 +150,7 @@ function TrackPage() {
               <h3 className="font-semibold text-lg">Transaction Details</h3>
               <dl className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div><dt className="text-muted-foreground">Reference ID</dt><dd className="font-mono font-semibold">{result.tx.transaction_id}</dd></div>
-                <div><dt className="text-muted-foreground">Status</dt><dd className="font-semibold text-success">{result.tx.status}</dd></div>
+                <div><dt className="text-muted-foreground">Status</dt><dd className={`font-semibold ${tc.text}`}>{result.tx.status}</dd></div>
                 <div><dt className="text-muted-foreground">Amount</dt><dd className="font-semibold">{fmtAmount(Number(result.tx.amount), result.tx.currency)}</dd></div>
                 <div><dt className="text-muted-foreground">Initiated / Saved</dt><dd>{fmt(result.tx.saved_at)}</dd></div>
                 <div><dt className="text-muted-foreground">Sender</dt><dd>{result.tx.sender_name || "—"}{result.tx.sender_bank ? ` · ${result.tx.sender_bank}` : ""}</dd></div>
@@ -120,17 +174,33 @@ function TrackPage() {
                   { t: "Payment Initiated", time: result.tx.initiated_at, icon: ArrowRight },
                   { t: "Verified by Novaluna Bank", time: result.tx.verified_at, icon: CheckCircle2 },
                   { t: "Processed at Clearing House", time: result.tx.processed_at, icon: Building2 },
-                  { t: "Credit to Beneficiary Account", time: result.tx.credited_at, icon: Clock, pendingLabel: "Within 6 working hours" },
+                  {
+                    t: meta.tone === "destructive" ? "Reversed to Sender Account" : "Credit to Beneficiary Account",
+                    time: result.tx.credited_at,
+                    icon: meta.tone === "destructive" ? AlertTriangle : Clock,
+                    pendingLabel: meta.tone === "destructive"
+                      ? "Transaction failed — funds reversed"
+                      : meta.tone === "warning"
+                      ? "Awaiting compliance clearance"
+                      : "Within 6 working hours",
+                  },
                 ].map((s, i) => {
                   const done = !!s.time;
+                  const isFailedPending = !done && meta.tone === "destructive" && i === 3;
+                  const stepClass = done
+                    ? tc.bgStep
+                    : isFailedPending
+                    ? "bg-destructive text-destructive-foreground"
+                    : "bg-muted text-muted-foreground";
+                  const labelClass = isFailedPending ? "font-medium text-destructive" : done ? "font-medium" : "font-medium text-muted-foreground";
                   return (
                     <li key={i} className="flex items-start gap-3">
-                      <div className={`mt-0.5 flex h-8 w-8 items-center justify-center rounded-full ${done ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}>
+                      <div className={`mt-0.5 flex h-8 w-8 items-center justify-center rounded-full ${stepClass}`}>
                         <s.icon className="h-4 w-4" />
                       </div>
                       <div>
-                        <div className={`font-medium ${done ? "" : "text-muted-foreground"}`}>{s.t}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className={labelClass}>{s.t}</div>
+                        <div className={`text-xs ${isFailedPending ? "text-destructive" : "text-muted-foreground"}`}>
                           {done ? fmt(s.time as string) : (s.pendingLabel ?? "Pending")}
                         </div>
                       </div>
@@ -140,7 +210,8 @@ function TrackPage() {
               </ol>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {result?.ok === false && (
           <div className="mt-6 rounded-xl bg-card border-2 border-destructive p-6">
