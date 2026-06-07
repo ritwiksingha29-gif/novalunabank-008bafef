@@ -130,16 +130,18 @@ function TrackPage() {
           </div>
         )}
 
-        {result?.ok === true && (
+        {result?.ok === true && (() => {
+          const meta = statusMeta(result.tx.status);
+          const tc = toneClasses[meta.tone];
+          const StatusIcon = meta.Icon;
+          return (
           <div className="mt-6 space-y-4">
-            <div className="rounded-xl bg-card border-2 border-success p-6">
+            <div className={`rounded-xl bg-card border-2 ${tc.border} p-6`}>
               <div className="flex items-start gap-4">
-                <CheckCircle2 className="h-12 w-12 text-success shrink-0" />
+                <StatusIcon className={`h-12 w-12 ${tc.text} shrink-0`} />
                 <div>
-                  <h2 className="font-display text-2xl font-bold text-success">Payment Successfully Processed</h2>
-                  <p className="mt-1 text-muted-foreground">
-                    Your transaction has been processed by Novaluna Bank and will be credited to the beneficiary account within <strong className="text-foreground">6 working hours</strong>.
-                  </p>
+                  <h2 className={`font-display text-2xl font-bold ${tc.text}`}>{meta.title}</h2>
+                  <p className="mt-1 text-muted-foreground">{meta.message}</p>
                 </div>
               </div>
             </div>
@@ -148,7 +150,7 @@ function TrackPage() {
               <h3 className="font-semibold text-lg">Transaction Details</h3>
               <dl className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div><dt className="text-muted-foreground">Reference ID</dt><dd className="font-mono font-semibold">{result.tx.transaction_id}</dd></div>
-                <div><dt className="text-muted-foreground">Status</dt><dd className="font-semibold text-success">{result.tx.status}</dd></div>
+                <div><dt className="text-muted-foreground">Status</dt><dd className={`font-semibold ${tc.text}`}>{result.tx.status}</dd></div>
                 <div><dt className="text-muted-foreground">Amount</dt><dd className="font-semibold">{fmtAmount(Number(result.tx.amount), result.tx.currency)}</dd></div>
                 <div><dt className="text-muted-foreground">Initiated / Saved</dt><dd>{fmt(result.tx.saved_at)}</dd></div>
                 <div><dt className="text-muted-foreground">Sender</dt><dd>{result.tx.sender_name || "—"}{result.tx.sender_bank ? ` · ${result.tx.sender_bank}` : ""}</dd></div>
@@ -163,6 +165,53 @@ function TrackPage() {
                   <span className="font-semibold">Bank Note:</span> {result.tx.notes}
                 </div>
               )}
+            </div>
+
+            <div className="rounded-xl bg-card border border-border p-6">
+              <h3 className="font-semibold text-lg mb-4">Settlement Timeline</h3>
+              <ol className="space-y-4">
+                {[
+                  { t: "Payment Initiated", time: result.tx.initiated_at, icon: ArrowRight },
+                  { t: "Verified by Novaluna Bank", time: result.tx.verified_at, icon: CheckCircle2 },
+                  { t: "Processed at Clearing House", time: result.tx.processed_at, icon: Building2 },
+                  {
+                    t: meta.tone === "destructive" ? "Reversed to Sender Account" : "Credit to Beneficiary Account",
+                    time: result.tx.credited_at,
+                    icon: meta.tone === "destructive" ? AlertTriangle : Clock,
+                    pendingLabel: meta.tone === "destructive"
+                      ? "Transaction failed — funds reversed"
+                      : meta.tone === "warning"
+                      ? "Awaiting compliance clearance"
+                      : "Within 6 working hours",
+                  },
+                ].map((s, i) => {
+                  const done = !!s.time;
+                  const isFailedPending = !done && meta.tone === "destructive" && i === 3;
+                  const stepClass = done
+                    ? tc.bgStep
+                    : isFailedPending
+                    ? "bg-destructive text-destructive-foreground"
+                    : "bg-muted text-muted-foreground";
+                  const labelClass = isFailedPending ? "font-medium text-destructive" : done ? "font-medium" : "font-medium text-muted-foreground";
+                  return (
+                    <li key={i} className="flex items-start gap-3">
+                      <div className={`mt-0.5 flex h-8 w-8 items-center justify-center rounded-full ${stepClass}`}>
+                        <s.icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className={labelClass}>{s.t}</div>
+                        <div className={`text-xs ${isFailedPending ? "text-destructive" : "text-muted-foreground"}`}>
+                          {done ? fmt(s.time as string) : (s.pendingLabel ?? "Pending")}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </div>
+          );
+        })()}
             </div>
 
             <div className="rounded-xl bg-card border border-border p-6">
