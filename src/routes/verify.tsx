@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { findTransactionById, type TransactionRecord } from "@/lib/transactions";
-import { BadgeCheck, XCircle, ShieldCheck, Lock } from "lucide-react";
+import { BadgeCheck, XCircle, ShieldCheck, Lock, Download } from "lucide-react";
+import { openReceipt } from "@/lib/receipt";
 
 export const Route = createFileRoute("/verify")({
   head: () => ({
@@ -108,6 +109,13 @@ function VerifyPage() {
                   </div>
                 )}
               </div>
+
+              <button
+                onClick={() => openReceipt(result.tx)}
+                className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90"
+              >
+                <Download className="h-4 w-4" /> Download Payment Receipt
+              </button>
 
               <div className="mt-5 flex items-center gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-success" />

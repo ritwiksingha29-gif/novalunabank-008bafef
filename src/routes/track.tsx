@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { findTransactionById, type TransactionRecord } from "@/lib/transactions";
-import { CheckCircle2, XCircle, Search, Clock, ArrowRight, Building2, AlertTriangle, Loader2, PauseCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Search, Clock, ArrowRight, Building2, AlertTriangle, Loader2, PauseCircle, Download } from "lucide-react";
+import { openReceipt } from "@/lib/receipt";
 
 type StatusTone = {
   tone: "success" | "info" | "warning" | "destructive";
@@ -144,6 +145,15 @@ function TrackPage() {
                   <p className="mt-1 text-muted-foreground">{meta.message}</p>
                 </div>
               </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={() => openReceipt(result.tx)}
+                className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90"
+              >
+                <Download className="h-4 w-4" /> Download Payment Receipt
+              </button>
             </div>
 
             <div className="rounded-xl bg-card border border-border p-6">
