@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { supabase } from "@/integrations/supabase/client";
 import { STATUS_OPTIONS, type TransactionRecord } from "@/lib/transactions";
-import { Lock, Plus, Pencil, Trash2, LogOut, ShieldCheck } from "lucide-react";
+import { Lock, Plus, Pencil, Trash2, LogOut, ShieldCheck, Download } from "lucide-react";
+import { openReceipt } from "@/lib/receipt";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin Console — Novaluna Bank" }] }),
@@ -346,7 +347,13 @@ function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                       </select>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{fmt(tx.saved_at)}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <button
+                        onClick={() => openReceipt(tx)}
+                        className="inline-flex items-center gap-1 rounded-md border border-primary/40 text-primary px-2 py-1 text-xs hover:bg-primary/10 mr-1"
+                      >
+                        <Download className="h-3 w-3" /> Receipt
+                      </button>
                       <button
                         onClick={() => startEdit(tx)}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-2 py-1 text-xs hover:bg-accent mr-1"
